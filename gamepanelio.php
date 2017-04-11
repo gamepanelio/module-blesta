@@ -115,4 +115,100 @@ class Gamepanelio extends Module
     {
         return $this->addModuleRow($vars);
     }
+
+    /**
+     * @param $vars
+     * @return ModuleFields
+     */
+    public function getPackageFields($vars = null)
+    {
+        $fields = new ModuleFields();
+
+        $planId = $fields->label(
+            Language::_('Gamepanelio.package_fields.plan_id', true),
+            "plan_id"
+        );
+        $planId->attach(
+            $fields->fieldText(
+                "plan_id",
+                "",
+                [
+                    'id' => "plan_id",
+                ]
+            )
+        );
+        $planId->attach(
+            $fields->tooltip(
+                Language::_('Gamepanelio.!tooltip.package_fields.plan_id', true)
+            )
+        );
+        $fields->setField($planId);
+
+        $usernamePrefix = $fields->label(
+            Language::_('Gamepanelio.package_fields.username_prefix', true),
+            "username_prefix"
+        );
+        $usernamePrefix->attach(
+            $fields->fieldText(
+                "username_prefix",
+                "",
+                [
+                    'id' => "username_prefix",
+                ]
+            )
+        );
+        $usernamePrefix->attach(
+            $fields->tooltip(
+                Language::_('Gamepanelio.!tooltip.package_fields.username_prefix', true)
+            )
+        );
+        $fields->setField($usernamePrefix);
+
+        $ipAllocation = $fields->label(
+            Language::_('Gamepanelio.package_fields.ip_allocation', true),
+            "ip_allocation"
+        );
+        $ipAllocation->attach(
+            $fields->fieldSelect(
+                "ip_allocation",
+                [
+                    "auto" => Language::_('Gamepanelio.package_fields.ip_allocation.auto', true),
+                    "dedicated" => Language::_('Gamepanelio.package_fields.ip_allocation.dedicated', true),
+                ],
+                "auto",
+                [
+                    'id' => "ip_allocation",
+                ]
+            )
+        );
+        $ipAllocation->attach(
+            $fields->tooltip(
+                Language::_('Gamepanelio.!tooltip.package_fields.ip_allocation', true)
+            )
+        );
+        $fields->setField($ipAllocation);
+
+        $gameType = $fields->label(
+            Language::_('Gamepanelio.package_fields.game_type', true),
+            "game_type"
+        );
+        $gameType->attach(
+            $fields->fieldSelect(
+                "game_type",
+                json_decode(file_get_contents(__DIR__ . DS . 'games.json'), true),
+                "",
+                [
+                    'id' => "game_type",
+                ]
+            )
+        );
+        $gameType->attach(
+            $fields->tooltip(
+                Language::_('Gamepanelio.!tooltip.package_fields.game_type', true)
+            )
+        );
+        $fields->setField($gameType);
+
+        return $fields;
+    }
 }

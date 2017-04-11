@@ -36,3 +36,16 @@ $lang['Gamepanelio.add_row.add_btn'] = "Add Control Panel";
 $lang['Gamepanelio.edit_row.box_title'] = "Edit GamePanel.io Control Panel";
 $lang['Gamepanelio.edit_row.basic_title'] = "Basic Settings";
 $lang['Gamepanelio.edit_row.add_btn'] = "Update Control Panel";
+
+$lang['Gamepanelio.package_fields.plan_id'] = "Plan ID";
+$lang['Gamepanelio.package_fields.username_prefix'] = "Username Prefix";
+$lang['Gamepanelio.package_fields.ip_allocation'] = "IP Allocation";
+$lang['Gamepanelio.package_fields.game_type'] = "Game Type";
+
+$lang['Gamepanelio.package_fields.ip_allocation.auto'] = "Auto";
+$lang['Gamepanelio.package_fields.ip_allocation.dedicated'] = "Dedicated";
+
+$lang['Gamepanelio.!tooltip.package_fields.plan_id'] = "The plan ID in the control panel to associate this package with";
+$lang['Gamepanelio.!tooltip.package_fields.username_prefix'] = "Add a prefix to the client's username if they don't already have an account";
+$lang['Gamepanelio.!tooltip.package_fields.ip_allocation'] = "How to assign the game server an IP address";
+$lang['Gamepanelio.!tooltip.package_fields.game_type'] = "The game this game server will run";
