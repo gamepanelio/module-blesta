@@ -1,0 +1,20 @@
+{
+    "version": "0.1.0",
+    "name": "GamePanel.io",
+    "description": "Provision game servers from Blesta to your GamePanel.io",
+    "authors": [
+        {
+            "name": "CraftSRV Ltd.",
+            "url": "https://gamepanel.io"
+        }
+    ],
+    "service": {
+        "name_key": "service.name_key"
+    },
+    "module": {
+        "row": "Gamepanelio.module_row.name",
+        "rows": "Gamepanelio.module_rows.name",
+        "group": "",
+        "row_key": "server_name"
+    }
+}

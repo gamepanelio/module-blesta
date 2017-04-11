@@ -1,0 +1,50 @@
+<?php
+$this->Widget->clear();
+$this->Widget->setLinkButtons(array());
+$this->Widget->create($this->_("Gamepanelio.add_row.box_title", true));
+?>
+    <div class="inner">
+        <?php
+        $this->Form->create();
+        ?>
+        <div class="title_row first">
+            <h3><?php $this->_("Gamepanelio.add_row.basic_title"); ?></h3>
+        </div>
+        <div class="pad">
+            <ul>
+                <li>
+                    <?php
+                    $this->Form->label($this->_("Gamepanelio.row_meta.name", true), "name");
+                    $this->Form->fieldText("name", $this->Html->ifSet($vars->name), array('id' => "name"));
+                    ?>
+                    <span class="tooltip"><?php $this->_('AppController.tooltip.text');?><div><?php $this->_('Gamepanelio.!tooltip.row_meta.name');?></div></span>
+                </li>
+                <li>
+                    <?php
+                    $this->Form->label($this->_("Gamepanelio.row_meta.hostname", true), "hostname");
+                    $this->Form->fieldText("hostname", $this->Html->ifSet($vars->hostname), array('id' => "hostname"));
+                    ?>
+                    <span class="tooltip"><?php $this->_('AppController.tooltip.text');?><div><?php $this->_('Gamepanelio.!tooltip.row_meta.hostname');?></div></span>
+                </li>
+                <li>
+                    <?php
+                    $this->Form->label($this->_("Gamepanelio.row_meta.access_token", true), "access_token");
+                    $this->Form->fieldTextArea("access_token", $this->Html->ifSet($vars->access_token), array('id' => "access_token"));
+                    ?>
+                    <span class="tooltip"><?php $this->_('AppController.tooltip.text');?><div><?php $this->_('Gamepanelio.!tooltip.row_meta.access_token');?></div></span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="button_row">
+            <?php
+            $this->Form->fieldSubmit('save', $this->_('Gamepanelio.add_row.add_btn', true), ['class' => 'btn btn-primary pull-right']);
+            ?>
+        </div>
+        <?php
+        $this->Form->end();
+        ?>
+    </div>
+<?php
+$this->Widget->end();
+?>
