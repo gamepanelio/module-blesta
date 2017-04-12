@@ -1,0 +1,19 @@
+{
+    "name": "gamepanelio/module-blesta",
+    "description": "Provision game servers from Blesta to your GamePanel.io",
+    "type": "blesta-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CraftSRV Ltd.",
+            "email": "devs@craftsrv.com"
+        }
+    ],
+    "require": {
+        "blesta/composer-installer": "~1.0",
+        "gamepanelio/api": "dev-master",
+        "php-http/curl-client": "^1.7",
+        "guzzlehttp/psr7": "^1.4",
+        "php-http/message": "^1.5"
+    }
+}

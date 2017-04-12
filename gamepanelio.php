@@ -3,6 +3,11 @@
 class Gamepanelio extends Module
 {
     /**
+     * @var \GamePanelio\GamePanelio
+     */
+    private $apiClient;
+
+    /**
      * Gamepanelio constructor.
      */
     public function __construct()
@@ -273,8 +278,20 @@ class Gamepanelio extends Module
      * @param array|null $vars
      * @return array
      */
-    public function editPackage($package, array $vars=null)
+    public function editPackage($package, array $vars = null)
     {
         return $this->addPackage($vars);
+    }
+
+    /**
+     * @param $hostname
+     * @param $accessTokenString
+     * @return \GamePanelio\GamePanelio
+     */
+    private function buildApiClient($hostname, $accessTokenString)
+    {
+        $accessToken = new \GamePanelio\AccessToken\PersonalAccessToken($accessTokenString);
+
+        return $this->apiClient = new \GamePanelio\GamePanelio($hostname, $accessToken);
     }
 }
