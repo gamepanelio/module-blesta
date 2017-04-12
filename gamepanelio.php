@@ -122,6 +122,8 @@ class Gamepanelio extends Module
      */
     public function getPackageFields($vars = null)
     {
+        Loader::loadHelpers($this, ['Html']);
+
         $fields = new ModuleFields();
 
         $planId = $fields->label(
@@ -130,10 +132,11 @@ class Gamepanelio extends Module
         );
         $planId->attach(
             $fields->fieldText(
-                "plan_id",
-                "",
+                "meta[plan_id]",
+                $this->Html->ifSet($vars->meta['plan_id']),
                 [
                     'id' => "plan_id",
+                    'type' => "number",
                 ]
             )
         );
@@ -150,8 +153,8 @@ class Gamepanelio extends Module
         );
         $usernamePrefix->attach(
             $fields->fieldText(
-                "username_prefix",
-                "",
+                "meta[username_prefix]",
+                $this->Html->ifSet($vars->meta['username_prefix']),
                 [
                     'id' => "username_prefix",
                 ]
@@ -170,12 +173,12 @@ class Gamepanelio extends Module
         );
         $ipAllocation->attach(
             $fields->fieldSelect(
-                "ip_allocation",
+                "meta[ip_allocation]",
                 [
                     "auto" => Language::_('Gamepanelio.package_fields.ip_allocation.auto', true),
                     "dedicated" => Language::_('Gamepanelio.package_fields.ip_allocation.dedicated', true),
                 ],
-                "auto",
+                $this->Html->ifSet($vars->meta['ip_allocation'], 'auto'),
                 [
                     'id' => "ip_allocation",
                 ]
@@ -194,9 +197,9 @@ class Gamepanelio extends Module
         );
         $gameType->attach(
             $fields->fieldSelect(
-                "game_type",
+                "meta[game_type]",
                 json_decode(file_get_contents(__DIR__ . DS . 'games.json'), true),
-                "",
+                $this->Html->ifSet($vars->meta['game_type'], 'auto'),
                 [
                     'id' => "game_type",
                 ]
@@ -210,5 +213,68 @@ class Gamepanelio extends Module
         $fields->setField($gameType);
 
         return $fields;
+    }
+
+    /**
+     * @param array|null $vars
+     * @return array
+     */
+    public function addPackage(array $vars = null)
+    {
+        $fields = ['plan_id', 'username_prefix', 'ip_allocation', 'game_type'];
+
+        // Set any package meta field rules
+        $rules = [
+            'meta[plan_id]' => [
+                'empty' => [
+                    'rule' => "isEmpty",
+                    'negate' => true,
+                    'message' => Language::_("Gamepanelio.!error.package_fields.plan_id.empty", true)
+                ]
+            ],
+            'meta[ip_allocation]' => [
+                'empty' => [
+                    'rule' => "isEmpty",
+                    'negate' => true,
+                    'message' => Language::_("Gamepanelio.!error.package_fields.ip_allocation.empty", true)
+                ]
+            ],
+            'meta[game_type]' => [
+                'empty' => [
+                    'rule' => "isEmpty",
+                    'negate' => true,
+                    'message' => Language::_("Gamepanelio.!error.package_fields.game_type.empty", true)
+                ]
+            ],
+        ];
+
+        $this->Input->setRules($rules);
+
+        // Determine whether the input validates
+        $meta = [];
+
+        if ($this->Input->validates($vars)) {
+            foreach ($vars['meta'] as $key => $value) {
+                if (in_array($key, $fields)) {
+                    $meta[] = [
+                        'key' => $key,
+                        'value' => $value,
+                        'encrypted' => 0
+                    ];
+                }
+            }
+        }
+
+        return $meta;
+    }
+
+    /**
+     * @param $package
+     * @param array|null $vars
+     * @return array
+     */
+    public function editPackage($package, array $vars=null)
+    {
+        return $this->addPackage($vars);
     }
 }

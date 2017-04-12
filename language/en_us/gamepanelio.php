@@ -49,3 +49,7 @@ $lang['Gamepanelio.!tooltip.package_fields.plan_id'] = "The plan ID in the contr
 $lang['Gamepanelio.!tooltip.package_fields.username_prefix'] = "Add a prefix to the client's username if they don't already have an account";
 $lang['Gamepanelio.!tooltip.package_fields.ip_allocation'] = "How to assign the game server an IP address";
 $lang['Gamepanelio.!tooltip.package_fields.game_type'] = "The game this game server will run";
+
+$lang['Gamepanelio.!error.package_fields.plan_id.empty'] = "Plan ID cannot be empty";
+$lang['Gamepanelio.!error.package_fields.ip_allocation.empty'] = "IP Allocation cannot be empty";
+$lang['Gamepanelio.!error.package_fields.game_type.empty'] = "Game Type cannot be empty";
