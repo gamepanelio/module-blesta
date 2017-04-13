@@ -1,0 +1,26 @@
+<div class="table-responsive">
+    <table class="table table-curved table-striped">
+        <thead>
+        <tr>
+            <th><i class="fa fa-share fa-flip-vertical"></i></th>
+            <th><?php $this->_('Gamepanelio.service_info.server_id'); ?></th>
+            <th><?php $this->_('Gamepanelio.service_info.username'); ?></th>
+            <th><?php $this->_('Gamepanelio.service_info.password'); ?></th>
+            <th><?php $this->_('Gamepanelio.service_info.control_panel'); ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td></td>
+            <td><?php $this->Html->_($service_fields->gamepanelio_server_id); ?></td>
+            <td><?php $this->Html->_($service_fields->gamepanelio_username); ?></td>
+            <td><?php $this->Html->_($service_fields->gamepanelio_password); ?></td>
+            <td>
+                <a href="http://<?php $this->Html->_($module_row->meta->hostname); ?>" target="_blank" class="btn btn-primary btn-xs">
+                    <i class="fa fa-key"></i> <?php $this->_('Gamepanelio.service_info.login_control_panel'); ?>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

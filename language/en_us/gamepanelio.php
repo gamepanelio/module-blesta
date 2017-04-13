@@ -53,3 +53,9 @@ $lang['Gamepanelio.!tooltip.package_fields.game_type'] = "The game this game ser
 $lang['Gamepanelio.!error.package_fields.plan_id.empty'] = "Plan ID cannot be empty";
 $lang['Gamepanelio.!error.package_fields.ip_allocation.empty'] = "IP Allocation cannot be empty";
 $lang['Gamepanelio.!error.package_fields.game_type.empty'] = "Game Type cannot be empty";
+
+$lang['Gamepanelio.service_info.server_id'] = "Server ID";
+$lang['Gamepanelio.service_info.username'] = "Username";
+$lang['Gamepanelio.service_info.password'] = "Password";
+$lang['Gamepanelio.service_info.control_panel'] = "Control Panel";
+$lang['Gamepanelio.service_info.login_control_panel'] = "Login to Control Panel";

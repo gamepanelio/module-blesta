@@ -661,4 +661,54 @@ class Gamepanelio extends Module
 
         return null;
     }
+
+    /**
+     * @param $service
+     * @param $package
+     * @return mixed
+     */
+    public function getAdminServiceInfo($service, $package)
+    {
+        $row = $this->getModuleRow();
+
+        // Load the view (admin_service_info.pdt) into this object, so helpers can be automatically added to the view
+        $this->view = new View("admin_service_info", "default");
+        $this->view->base_uri = $this->base_uri;
+        $this->view->setDefaultView("components" . DS . "modules" . DS . "gamepanelio" . DS);
+
+        // Load the helpers required for this view
+        Loader::loadHelpers($this, array("Form", "Html"));
+
+        $this->view->set("module_row", $row);
+        $this->view->set("package", $package);
+        $this->view->set("service", $service);
+        $this->view->set("service_fields", $this->serviceFieldsToObject($service->fields));
+
+        return $this->view->fetch();
+    }
+
+    /**
+     * @param $service
+     * @param $package
+     * @return mixed
+     */
+    public function getClientServiceInfo($service, $package)
+    {
+        $row = $this->getModuleRow();
+
+        // Load the view (admin_service_info.pdt) into this object, so helpers can be automatically added to the view
+        $this->view = new View("client_service_info", "default");
+        $this->view->base_uri = $this->base_uri;
+        $this->view->setDefaultView("components" . DS . "modules" . DS . "gamepanelio" . DS);
+
+        // Load the helpers required for this view
+        Loader::loadHelpers($this, array("Form", "Html"));
+
+        $this->view->set("module_row", $row);
+        $this->view->set("package", $package);
+        $this->view->set("service", $service);
+        $this->view->set("service_fields", $this->serviceFieldsToObject($service->fields));
+
+        return $this->view->fetch();
+    }
 }
