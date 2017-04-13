@@ -392,6 +392,21 @@ class Gamepanelio extends Module
     }
 
     /**
+     * @param $serviceDetails
+     * @return mixed|null
+     */
+    private function findServiceServerId($serviceDetails)
+    {
+        foreach ($serviceDetails->fields as $field) {
+            if ($field->key == self::SERVICE_FIELD_SERVER_ID) {
+                return $field->value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return array
      */
     public function getEmailTags()
@@ -512,5 +527,138 @@ class Gamepanelio extends Module
                 'encrypted' => 1
             ],
         ];
+    }
+
+    /**
+     * @param $serverId
+     * @param $params
+     * @return void
+     */
+    public function sendApiServerUpdate($serverId, $params)
+    {
+        try {
+            $this->log("updateServer", json_encode([$serverId, $params], JSON_PRETTY_PRINT), "input", true);
+            $response = $this->apiClient->updateServer($serverId, $params);
+            $this->log("updateServer", json_encode($response, JSON_PRETTY_PRINT), "output", true);
+        } catch (\GamePanelio\Exception\ApiCommunicationException $e) {
+            $this->log("updateServer", $e->getMessage(), "output", false);
+
+            $this->Input->setErrors([
+                'api_response' => ['error' => $e->getMessage()]
+            ]);
+        }
+    }
+
+    /**
+     * @param $package
+     * @param $service
+     * @param null $parent_package
+     * @param null $parent_service
+     * @return null
+     */
+    public function suspendService($package, $service, $parent_package = null, $parent_service = null)
+    {
+        $row = $this->getModuleRow();
+        $serverId = $this->findServiceServerId($service);
+
+        if ($row && $serverId) {
+            $this->buildApiClient($row->meta->hostname, $row->meta->access_token);
+
+            $params = [
+                'suspended' => true,
+            ];
+
+            $this->sendApiServerUpdate($serverId, $params);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $package
+     * @param $service
+     * @param null $parent_package
+     * @param null $parent_service
+     * @return null
+     */
+    public function unsuspendService($package, $service, $parent_package = null, $parent_service = null)
+    {
+        $row = $this->getModuleRow();
+        $serverId = $this->findServiceServerId($service);
+
+        if ($row && $serverId) {
+            $this->buildApiClient($row->meta->hostname, $row->meta->access_token);
+
+            $params = [
+                'suspended' => false,
+            ];
+
+            $this->sendApiServerUpdate($serverId, $params);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $package
+     * @param $service
+     * @param null $parent_package
+     * @param null $parent_service
+     * @return null
+     */
+    public function cancelService($package, $service, $parent_package = null, $parent_service = null)
+    {
+        $row = $this->getModuleRow();
+        $serverId = $this->findServiceServerId($service);
+
+        if ($row && $serverId) {
+            $this->buildApiClient($row->meta->hostname, $row->meta->access_token);
+
+            try {
+                $this->log("deleteServer", json_encode([$serverId], JSON_PRETTY_PRINT), "input", true);
+                $response = $this->apiClient->deleteServer($serverId);
+                $this->log("deleteServer", json_encode($response, JSON_PRETTY_PRINT), "output", true);
+            } catch (\GamePanelio\Exception\ApiCommunicationException $e) {
+                $this->log("deleteServer", $e->getMessage(), "output", false);
+
+                $this->Input->setErrors([
+                    'api_response' => ['error' => $e->getMessage()]
+                ]);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $package_from
+     * @param $package_to
+     * @param $service
+     * @param null $parent_package
+     * @param null $parent_service
+     * @return null
+     */
+    public function changeServicePackage(
+        $package_from,
+        $package_to,
+        $service,
+        $parent_package = null,
+        $parent_service = null
+    ) {
+        $row = $this->getModuleRow();
+        $serverId = $this->findServiceServerId($service);
+
+        if ($row && $serverId) {
+            $this->buildApiClient($row->meta->hostname, $row->meta->access_token);
+
+            $params = [
+                'game' => $package_to->meta->game_type,
+                'plan' => $package_to->meta->plan_id,
+            ];
+
+            $this->sendApiServerUpdate($serverId, $params);
+        }
+
+        return null;
     }
 }
