@@ -2,6 +2,11 @@
 
 class Gamepanelio extends Module
 {
+    const SERVICE_FIELD_SERVER_ID = 'gamepanelio_server_id';
+    const SERVICE_FIELD_USER_ID = 'gamepanelio_user_id';
+    const SERVICE_FIELD_USERNAME = 'gamepanelio_username';
+    const SERVICE_FIELD_PASSWORD = 'gamepanelio_password';
+
     /**
      * @var \GamePanelio\GamePanelio
      */
@@ -293,5 +298,219 @@ class Gamepanelio extends Module
         $accessToken = new \GamePanelio\AccessToken\PersonalAccessToken($accessTokenString);
 
         return $this->apiClient = new \GamePanelio\GamePanelio($hostname, $accessToken);
+    }
+
+    /**
+     * @param $username
+     * @param $password
+     * @param $email
+     * @param $fullName
+     * @return array
+     */
+    private function findCreateApiUser($username, $password, $email, $fullName)
+    {
+        try {
+            $this->log("getUserByUsername", $username, "input", true);
+            $response = $this->apiClient->getUserByUsername($username);
+            $this->log("getUserByUsername", serialize($response), "output", true);
+        } catch (\GamePanelio\Exception\ApiCommunicationException $e) {
+            $this->log("getUserByUsername", $e->getMessage(), "output", false);
+
+            $params = [
+                'username' => $username,
+                'password' => $password,
+                'email' => $email,
+                'fullName' => $fullName,
+            ];
+
+            $masked_params = $params;
+            $masked_params['password'] = "***";
+
+            $this->log("createUser", serialize($masked_params), "input", true);
+            $response = $this->apiClient->createUser($params);
+            $this->log("createUser", serialize($response), "output", true);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $serviceDetails
+     * @param $clientDetails
+     * @return string
+     */
+    private function buildUsername($serviceDetails, $clientDetails)
+    {
+        if (
+            array_key_exists(self::SERVICE_FIELD_USERNAME, $serviceDetails) &&
+            $username = $serviceDetails[self::SERVICE_FIELD_USERNAME]
+        ) {
+            return $username;
+        }
+
+        $usernamePrefix = isset($serviceDetails->meta->username_prefix) ? $serviceDetails->meta->username_prefix : "";
+
+        return $usernamePrefix . $clientDetails->first_name . $clientDetails->last_name . $clientDetails->id;
+    }
+
+    /**
+     * @param $serviceDetails
+     * @param $clientDetails
+     * @return string
+     */
+    private function buildPassword($serviceDetails, $clientDetails)
+    {
+        if (
+            array_key_exists(self::SERVICE_FIELD_PASSWORD, $serviceDetails) &&
+            $password = $serviceDetails[self::SERVICE_FIELD_PASSWORD]
+        ) {
+            return $password;
+        }
+
+        return $this->generatePassword();
+    }
+
+    /**
+     * Generates a password
+     *
+     * @param int $min_length The minimum character length for the password (5 or larger)
+     * @param int $max_length The maximum character length for the password (14 or fewer)
+     * @return string The generated password
+     */
+    private function generatePassword($min_length = 10, $max_length = 14)
+    {
+        $pool = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+        $pool_size = strlen($pool);
+        $length = mt_rand(max($min_length, 5), min($max_length, 14));
+        $password = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $password .= substr($pool, mt_rand(0, $pool_size - 1), 1);
+        }
+
+        return $password;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEmailTags()
+    {
+        return [
+            'module' => ['hostname'],
+            'package' => ['game_type'],
+            'service' => [self::SERVICE_FIELD_SERVER_ID, self::SERVICE_FIELD_USERNAME, self::SERVICE_FIELD_PASSWORD]
+        ];
+    }
+
+    /**
+     * @param $package
+     * @param array|null $vars
+     * @param null $parent_package
+     * @param null $parent_service
+     * @param string $status
+     * @return array|null
+     */
+    public function addService(
+        $package,
+        array $vars = null,
+        $parent_package = null,
+        $parent_service = null,
+        $status = "pending"
+    ) {
+        Loader::loadModels($this, ['Clients']);
+
+        $row = $this->getModuleRow();
+        $client = $this->Clients->get($vars['client_id'], false);
+
+        if (!$row) {
+            $this->Input->setErrors([
+                'module_row' => ['missing' => Language::_('Gamepanelio.!error.module_row.missing', true)]
+            ]);
+            return;
+        }
+
+        $gpioUserId = array_key_exists(self::SERVICE_FIELD_USER_ID, $vars)
+            ? $vars[self::SERVICE_FIELD_USER_ID] : null;
+        $gpioServerId = array_key_exists(self::SERVICE_FIELD_SERVER_ID, $vars)
+            ? $vars[self::SERVICE_FIELD_SERVER_ID] : null;
+        $serviceUsername = $this->buildUsername($vars, $client);
+        $servicePassword = $this->buildPassword($vars, $client);
+
+        $this->validateService($package, $vars);
+        if ($this->Input->errors()) {
+            return;
+        }
+
+        // Only provision the service remotely if 'use_module' is true
+        if (isset($vars['use_module']) && $vars['use_module'] == "true") {
+            try {
+                $this->buildApiClient($row->meta->hostname, $row->meta->access_token);
+
+                if (!$gpioUserId) {
+                    $response = $this->findCreateApiUser(
+                        $serviceUsername,
+                        $servicePassword,
+                        $client->email,
+                        $client->first_name . ' ' . $client->last_name
+                    );
+
+                    $gpioUserId = $response['id'];
+                }
+
+                $serverName = $client->first_name . "'";
+                if (substr($client->first_name, -1) != "s") {
+                    $serverName .= "s";
+                }
+                $serverName .= " Game Server";
+
+                $params = [
+                    'name' => $serverName,
+                    'user' => $gpioUserId,
+                    'game' => $package->meta->game_type,
+                    'plan' => $package->meta->plan_id,
+                    'allocation' => $package->meta->ip_allocation,
+                ];
+
+                $this->log("createServer", serialize($params), "input", true);
+                $response = $this->apiClient->createServer($params);
+                $this->log("createServer", serialize($response), "output", true);
+
+                $gpioServerId = $response['id'];
+            } catch (\GamePanelio\Exception\ApiCommunicationException $e) {
+                $this->Input->setErrors([
+                    'api_response' => ['error' => $e->getMessage()]
+                ]);
+            }
+
+            // Return on error
+            if ($this->Input->errors()) {
+                return;
+            }
+        }
+
+        // Return the service fields
+        return [
+            [
+                'key' => self::SERVICE_FIELD_SERVER_ID,
+                'value' => $gpioServerId,
+                'encrypted' => 0
+            ],
+            [
+                'key' => self::SERVICE_FIELD_USER_ID,
+                'value' => $gpioUserId,
+                'encrypted' => 0
+            ],
+            [
+                'key' => self::SERVICE_FIELD_USERNAME,
+                'value' => $serviceUsername,
+                'encrypted' => 0
+            ],
+            [
+                'key' => self::SERVICE_FIELD_PASSWORD,
+                'value' => $servicePassword,
+                'encrypted' => 1
+            ],
+        ];
     }
 }
