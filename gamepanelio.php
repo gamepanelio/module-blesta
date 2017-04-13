@@ -310,9 +310,9 @@ class Gamepanelio extends Module
     private function findCreateApiUser($username, $password, $email, $fullName)
     {
         try {
-            $this->log("getUserByUsername", $username, "input", true);
+            $this->log("getUserByUsername", json_encode([$username], JSON_PRETTY_PRINT), "input", true);
             $response = $this->apiClient->getUserByUsername($username);
-            $this->log("getUserByUsername", serialize($response), "output", true);
+            $this->log("getUserByUsername", json_encode($response, JSON_PRETTY_PRINT), "output", true);
         } catch (\GamePanelio\Exception\ApiCommunicationException $e) {
             $this->log("getUserByUsername", $e->getMessage(), "output", false);
 
@@ -326,9 +326,9 @@ class Gamepanelio extends Module
             $masked_params = $params;
             $masked_params['password'] = "***";
 
-            $this->log("createUser", serialize($masked_params), "input", true);
+            $this->log("createUser", json_encode([$masked_params], JSON_PRETTY_PRINT), "input", true);
             $response = $this->apiClient->createUser($params);
-            $this->log("createUser", serialize($response), "output", true);
+            $this->log("createUser", json_encode($response, JSON_PRETTY_PRINT), "output", true);
         }
 
         return $response;
@@ -472,9 +472,9 @@ class Gamepanelio extends Module
                     'allocation' => $package->meta->ip_allocation,
                 ];
 
-                $this->log("createServer", serialize($params), "input", true);
+                $this->log("createServer", json_encode([$params], JSON_PRETTY_PRINT), "input", true);
                 $response = $this->apiClient->createServer($params);
-                $this->log("createServer", serialize($response), "output", true);
+                $this->log("createServer", json_encode($response, JSON_PRETTY_PRINT), "output", true);
 
                 $gpioServerId = $response['id'];
             } catch (\GamePanelio\Exception\ApiCommunicationException $e) {
