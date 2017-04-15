@@ -1,5 +1,9 @@
 <?php
 
+if (!class_exists('\\GamePanelio\\GamePanelio')) {
+    require_once __DIR__ . "/vendor/autoload.php";
+}
+
 /**
  * Class Gamepanelio
  * @property Input Input
