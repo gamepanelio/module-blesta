@@ -1,0 +1,12 @@
+<phpunit bootstrap="./tests/bootstrap.php">
+    <testsuites>
+        <testsuite name="Blesta Module">
+            <directory suffix="Test.php" phpVersion="5.4.0" phpVersionOperator=">=">./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <file>./gamepanelio.php</file>
+        </whitelist>
+    </filter>
+</phpunit>

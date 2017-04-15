@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Class Gamepanelio
+ * @property Input Input
+ * @property Html Html
+ * @property View view
+ * @property object Clients
+ */
 class Gamepanelio extends Module
 {
     const SERVICE_FIELD_SERVER_ID = 'gamepanelio_server_id';
@@ -13,6 +20,16 @@ class Gamepanelio extends Module
     private $apiClient;
 
     /**
+     * @var bool
+     */
+    private $isMockApi;
+
+    /**
+     * @var
+     */
+    private $defaultViewPath;
+
+    /**
      * Gamepanelio constructor.
      */
     public function __construct()
@@ -20,6 +37,15 @@ class Gamepanelio extends Module
         Loader::loadComponents($this, array("Input"));
         Language::loadLang("gamepanelio", null, dirname(__FILE__) . DS . "language" . DS);
         $this->loadConfig(dirname(__FILE__) . DS . "config.json");
+        $this->defaultViewPath = "components" . DS . "modules" . DS . 'gamepanelio' . DS;
+    }
+
+    /**
+     * @param mixed $defaultViewPath
+     */
+    public function setDefaultViewPath($defaultViewPath)
+    {
+        $this->defaultViewPath = $defaultViewPath;
     }
 
     /**
@@ -40,7 +66,7 @@ class Gamepanelio extends Module
         // Load the view into this object, so helpers can be automatically added to the view
         $this->view = new View("manage", "default");
         $this->view->base_uri = $this->base_uri;
-        $this->view->setDefaultView("components" . DS . "modules" . DS . 'gamepanelio' . DS);
+        $this->view->setDefaultView($this->defaultViewPath);
 
         // Load the helpers required for this view
         Loader::loadHelpers($this, array("Form", "Html", "Widget"));
@@ -58,7 +84,7 @@ class Gamepanelio extends Module
         // Load the view into this object, so helpers can be automatically added to the view
         $this->view = new View("add_row", "default");
         $this->view->base_uri = $this->base_uri;
-        $this->view->setDefaultView("components" . DS . "modules" . DS . "gamepanelio" . DS);
+        $this->view->setDefaultView($this->defaultViewPath);
 
         // Load the helpers required for this view
         Loader::loadHelpers($this, array("Form", "Html", "Widget"));
@@ -77,7 +103,7 @@ class Gamepanelio extends Module
         // Load the view into this object, so helpers can be automatically added to the view
         $this->view = new View("edit_row", "default");
         $this->view->base_uri = $this->base_uri;
-        $this->view->setDefaultView("components" . DS . "modules" . DS . "gamepanelio" . DS);
+        $this->view->setDefaultView($this->defaultViewPath);
 
         // Set initial module row meta fields for vars
         if (empty($vars)) {
@@ -263,7 +289,7 @@ class Gamepanelio extends Module
         // Determine whether the input validates
         $meta = [];
 
-        if ($this->Input->validates($vars)) {
+        if ($this->Input->validates($vars) && is_array($vars)) {
             foreach ($vars['meta'] as $key => $value) {
                 if (in_array($key, $fields)) {
                     $meta[] = [
@@ -295,9 +321,22 @@ class Gamepanelio extends Module
      */
     private function buildApiClient($hostname, $accessTokenString)
     {
+        if ($this->isMockApi) {
+            return $this->apiClient;
+        }
+
         $accessToken = new \GamePanelio\AccessToken\PersonalAccessToken($accessTokenString);
 
         return $this->apiClient = new \GamePanelio\GamePanelio($hostname, $accessToken);
+    }
+
+    /**
+     * @param \GamePanelio\GamePanelio $apiClient
+     */
+    public function setMockApi(\GamePanelio\GamePanelio $apiClient)
+    {
+        $this->apiClient = $apiClient;
+        $this->isMockApi = true;
     }
 
     /**
@@ -674,7 +713,7 @@ class Gamepanelio extends Module
         // Load the view (admin_service_info.pdt) into this object, so helpers can be automatically added to the view
         $this->view = new View("admin_service_info", "default");
         $this->view->base_uri = $this->base_uri;
-        $this->view->setDefaultView("components" . DS . "modules" . DS . "gamepanelio" . DS);
+        $this->view->setDefaultView($this->defaultViewPath);
 
         // Load the helpers required for this view
         Loader::loadHelpers($this, array("Form", "Html"));
@@ -699,7 +738,7 @@ class Gamepanelio extends Module
         // Load the view (admin_service_info.pdt) into this object, so helpers can be automatically added to the view
         $this->view = new View("client_service_info", "default");
         $this->view->base_uri = $this->base_uri;
-        $this->view->setDefaultView("components" . DS . "modules" . DS . "gamepanelio" . DS);
+        $this->view->setDefaultView($this->defaultViewPath);
 
         // Load the helpers required for this view
         Loader::loadHelpers($this, array("Form", "Html"));
